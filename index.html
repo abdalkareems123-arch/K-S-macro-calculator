@@ -1,28 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Macro Alternate Calculator</title>
+<title>K_S Nutrition System</title>
 
 <style>
 body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    background:#0d1b2a;
+    padding:20px;
+    color:#000;
 }
 
 .container{
-    background:white;
-    width:95%;
-    max-width:500px;
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 15px 30px rgba(0,0,0,0.2);
+    max-width:430px;
+    margin:auto;
+    background:#ffffff;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.2);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.logo img{
+    width:140px;
 }
 
 h2{
@@ -30,125 +37,216 @@ h2{
     margin-bottom:20px;
 }
 
+.category-buttons button{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    border:none;
+    border-radius:10px;
+    background:#000;
+    color:#fff;
+    font-size:15px;
+    cursor:pointer;
+}
+
 label{
+    display:block;
+    margin-top:15px;
     font-weight:bold;
 }
 
 select,input{
     width:100%;
     padding:10px;
-    margin:8px 0 15px 0;
-    border-radius:8px;
+    margin-top:5px;
+    border-radius:10px;
     border:1px solid #ccc;
+    font-size:15px;
 }
 
-button{
+.calc-btn{
     width:100%;
+    margin-top:20px;
     padding:12px;
     border:none;
-    background:#2ecc71;
-    color:white;
+    border-radius:12px;
+    background:#f4a019;
+    font-size:18px;
     font-weight:bold;
-    border-radius:8px;
     cursor:pointer;
-    font-size:16px;
-}
-
-button:hover{
-    background:#27ae60;
 }
 
 .result{
-    margin-top:15px;
-    text-align:center;
-    font-weight:bold;
+    margin-top:25px;
+    background:#f4a019;
+    padding:18px;
+    border-radius:15px;
     font-size:18px;
+    text-align:center;
+    display:none;
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-<h2>Macro Alternate Calculator</h2>
 
-<label>Choose Category</label>
-<select id="category" onchange="updateOptions()">
-<option value="protein">Protein</option>
-<option value="carbs">Carbs</option>
-<option value="fats">Fats</option>
-</select>
+<div class="logo">
+    <img src="logo.jpg">
+</div>
 
-<label>Choose Source</label>
-<select id="source"></select>
+<h2>K_S Alternate System</h2>
 
-<label>Enter Quantity (grams)</label>
-<input type="number" id="quantity" placeholder="مثلاً 100">
+<div class="category-buttons">
+    <button onclick="setCategory('protein')">بروتين</button>
+    <button onclick="setCategory('carbs')">كربوهيدرات</button>
+    <button onclick="setCategory('fats')">دهون</button>
+    <button onclick="setCategory('legumes')">بقوليات</button>
+    <button onclick="setCategory('vegetables')">خضروات</button>
+    <button onclick="setCategory('fruits')">فواكه</button>
+    <button onclick="setCategory('dairy')">منتجات ألبان</button>
+</div>
 
-<label>Choose Target</label>
-<select id="target"></select>
+<label>الصنف الأساسي</label>
+<select id="mainItem"></select>
 
-<button onclick="calculate()">Calculate</button>
+<label>عدد الغرامات في خطتك</label>
+<input type="number" id="grams" placeholder="مثال 200">
 
-<div class="result" id="result"></div>
+<label>الصنف البديل</label>
+<select id="altItem"></select>
+
+<button class="calc-btn" onclick="calculate()">Calculate</button>
+
+<div class="result" id="resultBox"></div>
+
 </div>
 
 <script>
 
-const data = {
+const database = {
+
 protein:{
-"Chicken Breast":31,
-"Beef":26,
-"Tuna":22,
-"Turkey":25,
-"Eggs":13
+    chicken:{name:"صدر دجاج", value:31},
+    thigh:{name:"فخذ دجاج", value:24},
+    beef:{name:"لحم بقري", value:26},
+    lamb:{name:"لحم غنم", value:25},
+    tuna:{name:"تونة", value:29},
+    salmon:{name:"سمك سالمون", value:25},
+    sardine:{name:"سردين", value:24},
+    eggs:{name:"بيض كامل", value:13},
+    shrimp:{name:"جمبري", value:24}
 },
+
 carbs:{
-"Rice":28,
-"Pasta":25,
-"Potato":17,
-"Oats":66,
-"Bread":49
+    rice:{name:"أرز أبيض", value:28},
+    brownrice:{name:"أرز بني", value:23},
+    potato:{name:"بطاطا", value:20},
+    sweetpotato:{name:"بطاطا حلوة", value:21},
+    bread:{name:"خبز عربي", value:50},
+    oats:{name:"شوفان", value:60},
+    pasta:{name:"معكرونة", value:25},
+    bulgur:{name:"برغل", value:18},
+    quinoa:{name:"كينوا", value:21}
 },
+
 fats:{
-"Olive Oil":100,
-"Butter":81,
-"Peanut Butter":50,
-"Almonds":49,
-"Avocado":15
+    olive:{name:"زيت زيتون", value:100},
+    almonds:{name:"لوز", value:50},
+    walnuts:{name:"جوز", value:65},
+    peanutbutter:{name:"زبدة فول سوداني", value:50},
+    avocado:{name:"أفوكادو", value:15},
+    tahini:{name:"طحينة", value:60}
+},
+
+legumes:{
+    lentils:{name:"عدس", value:20},
+    chickpeas:{name:"حمص", value:27},
+    beans:{name:"فاصوليا", value:22},
+    fava:{name:"فول", value:19}
+},
+
+vegetables:{
+    broccoli:{name:"بروكلي", value:7},
+    zucchini:{name:"كوسا", value:3},
+    carrot:{name:"جزر", value:10},
+    cucumber:{name:"خيار", value:3},
+    tomato:{name:"طماطم", value:5},
+    spinach:{name:"سبانخ", value:4}
+},
+
+fruits:{
+    apple:{name:"تفاح", value:14},
+    banana:{name:"موز", value:23},
+    orange:{name:"برتقال", value:12},
+    mango:{name:"مانجا", value:15},
+    strawberry:{name:"فراولة", value:8},
+    grapes:{name:"عنب", value:18}
+},
+
+dairy:{
+    milk:{name:"حليب", value:5},
+    yogurt:{name:"لبن يوناني", value:10},
+    cheese:{name:"جبنة بيضاء", value:18},
+    labneh:{name:"لبنة", value:12}
 }
+
 };
 
-function updateOptions(){
-const category = document.getElementById("category").value;
-const source = document.getElementById("source");
-const target = document.getElementById("target");
+let currentCategory="protein";
 
-source.innerHTML="";
-target.innerHTML="";
-
-for(let item in data[category]){
-    source.innerHTML += `<option value="${data[category][item]}">${item} (${data[category][item]}g per 100g)</option>`;
-    target.innerHTML += `<option value="${data[category][item]}">${item} (${data[category][item]}g per 100g)</option>`;
+function setCategory(cat){
+    currentCategory=cat;
+    loadItems();
 }
+
+function loadItems(){
+    const main=document.getElementById("mainItem");
+    const alt=document.getElementById("altItem");
+    main.innerHTML="";
+    alt.innerHTML="";
+    for(let key in database[currentCategory]){
+        let option1=document.createElement("option");
+        option1.value=key;
+        option1.text=database[currentCategory][key].name;
+        main.appendChild(option1);
+
+        let option2=document.createElement("option");
+        option2.value=key;
+        option2.text=database[currentCategory][key].name;
+        alt.appendChild(option2);
+    }
 }
 
 function calculate(){
-const sourceValue = parseFloat(document.getElementById("source").value);
-const targetValue = parseFloat(document.getElementById("target").value);
-const quantity = parseFloat(document.getElementById("quantity").value);
+    const main=document.getElementById("mainItem").value;
+    const alt=document.getElementById("altItem").value;
+    const grams=parseFloat(document.getElementById("grams").value);
 
-if(!quantity){
-alert("Enter quantity first");
-return;
+    if(!grams || grams<=0){
+        alert("ادخل رقم صحيح");
+        return;
+    }
+
+    const mainValue=database[currentCategory][main].value;
+    const altValue=database[currentCategory][alt].value;
+
+    const totalMacro=(mainValue/100)*grams;
+    const altGrams=(totalMacro/altValue)*100;
+
+    document.getElementById("resultBox").innerHTML=
+        grams+" جرام من "+
+        database[currentCategory][main].name+
+        " = "+
+        altGrams.toFixed(0)+
+        " جرام من "+
+        database[currentCategory][alt].name;
+
+    document.getElementById("resultBox").style.display="block";
 }
 
-const result = (quantity * sourceValue) / targetValue;
-
-document.getElementById("result").innerHTML =
-`You need <span style="color:#2ecc71">${result.toFixed(1)}g</span> of target food.`;
-}
-
-updateOptions();
+loadItems();
 
 </script>
 
