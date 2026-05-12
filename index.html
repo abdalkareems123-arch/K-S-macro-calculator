@@ -96,8 +96,7 @@ select,input{
     <img src="logo.jpg">
 </div>
 
-<h2>K_S Alternate System</h2>
-
+<h2 id="title">K_S Alternate System</h2>
 <div class="category-buttons">
     <button onclick="setCategory('protein')">بروتين</button>
     <button onclick="setCategory('carbs')">كربوهيدرات</button>
@@ -108,17 +107,11 @@ select,input{
     <button onclick="setCategory('dairy')">منتجات ألبان</button>
 </div>
 
-<label>الصنف الأساسي</label>
-<select id="mainItem"></select>
+<label id="mainLabel">الصنف الأساسي</label>
+<label id="gramsLabel">عدد الغرامات في خطتك</label>
+<label id="altLabel">الصنف البديل</label>
 
-<label>عدد الغرامات في خطتك</label>
-<input type="number" id="grams" placeholder="مثال 200">
-
-<label>الصنف البديل</label>
-<select id="altItem"></select>
-
-<button class="calc-btn" onclick="calculate()">Calculate</button>
-
+<button class="calc-btn" id="calcBtn" onclick="calculate()">Calculate</button>
 <div class="result" id="resultBox"></div>
 
 </div>
@@ -252,3 +245,25 @@ loadItems();
 
 </body>
 </html>
+async function setLang(lang){
+
+    const res = await fetch(`lang/${lang}.json`);
+    const t = await res.json();
+
+    document.getElementById("title").textContent = t.title;
+    document.getElementById("mainLabel").textContent = t.mainCategory;
+    document.getElementById("gramsLabel").textContent = t.grams;
+    document.getElementById("altLabel").textContent = t.altCategory;
+    document.getElementById("calcBtn").textContent = t.calc;
+
+    // RTL / LTR
+    document.body.dir = (lang === "ar") ? "rtl" : "ltr";
+
+    localStorage.setItem("lang", lang);
+}
+
+// تشغيل تلقائي
+window.onload = () => {
+    const lang = localStorage.getItem("lang") || "ar";
+    setLang(lang);
+};
