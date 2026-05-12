@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>K_S Nutrition System</title>
 
 <style>
+
 body{
     font-family: Arial, sans-serif;
     direction: rtl;
@@ -30,6 +32,21 @@ body{
 
 .logo img{
     width:140px;
+}
+
+.language-switch{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.language-switch button{
+    padding:8px 15px;
+    margin:0 5px;
+    border:none;
+    border-radius:10px;
+    background:#000;
+    color:#fff;
+    cursor:pointer;
 }
 
 h2{
@@ -85,6 +102,7 @@ select,input{
     text-align:center;
     display:none;
 }
+
 </style>
 </head>
 
@@ -96,7 +114,13 @@ select,input{
     <img src="logo.jpg">
 </div>
 
+<div class="language-switch">
+    <button onclick="setLang('ar')">العربية</button>
+    <button onclick="setLang('en')">English</button>
+</div>
+
 <h2 id="title">K_S Alternate System</h2>
+
 <div class="category-buttons">
     <button onclick="setCategory('protein')">بروتين</button>
     <button onclick="setCategory('carbs')">كربوهيدرات</button>
@@ -108,10 +132,16 @@ select,input{
 </div>
 
 <label id="mainLabel">الصنف الأساسي</label>
+<select id="mainItem"></select>
+
 <label id="gramsLabel">عدد الغرامات في خطتك</label>
+<input type="number" id="grams" placeholder="مثال 100">
+
 <label id="altLabel">الصنف البديل</label>
+<select id="altItem"></select>
 
 <button class="calc-btn" id="calcBtn" onclick="calculate()">Calculate</button>
+
 <div class="result" id="resultBox"></div>
 
 </div>
@@ -187,64 +217,63 @@ dairy:{
 
 };
 
-let currentCategory="protein";
+let currentCategory = "protein";
 
 function setCategory(cat){
-    currentCategory=cat;
+    currentCategory = cat;
     loadItems();
 }
 
 function loadItems(){
-    const main=document.getElementById("mainItem");
-    const alt=document.getElementById("altItem");
-    main.innerHTML="";
-    alt.innerHTML="";
+
+    const main = document.getElementById("mainItem");
+    const alt = document.getElementById("altItem");
+
+    main.innerHTML = "";
+    alt.innerHTML = "";
+
     for(let key in database[currentCategory]){
-        let option1=document.createElement("option");
-        option1.value=key;
-        option1.text=database[currentCategory][key].name;
+
+        let option1 = document.createElement("option");
+        option1.value = key;
+        option1.text = database[currentCategory][key].name;
         main.appendChild(option1);
 
-        let option2=document.createElement("option");
-        option2.value=key;
-        option2.text=database[currentCategory][key].name;
+        let option2 = document.createElement("option");
+        option2.value = key;
+        option2.text = database[currentCategory][key].name;
         alt.appendChild(option2);
     }
 }
 
 function calculate(){
-    const main=document.getElementById("mainItem").value;
-    const alt=document.getElementById("altItem").value;
-    const grams=parseFloat(document.getElementById("grams").value);
 
-    if(!grams || grams<=0){
+    const main = document.getElementById("mainItem").value;
+    const alt = document.getElementById("altItem").value;
+    const grams = parseFloat(document.getElementById("grams").value);
+
+    if(!grams || grams <= 0){
         alert("ادخل رقم صحيح");
         return;
     }
 
-    const mainValue=database[currentCategory][main].value;
-    const altValue=database[currentCategory][alt].value;
+    const mainValue = database[currentCategory][main].value;
+    const altValue = database[currentCategory][alt].value;
 
-    const totalMacro=(mainValue/100)*grams;
-    const altGrams=(totalMacro/altValue)*100;
+    const totalMacro = (mainValue / 100) * grams;
+    const altGrams = (totalMacro / altValue) * 100;
 
-    document.getElementById("resultBox").innerHTML=
-        grams+" جرام من "+
-        database[currentCategory][main].name+
-        " = "+
-        altGrams.toFixed(0)+
-        " جرام من "+
+    document.getElementById("resultBox").innerHTML =
+        grams + " جرام من " +
+        database[currentCategory][main].name +
+        " = " +
+        altGrams.toFixed(0) +
+        " جرام من " +
         database[currentCategory][alt].name;
 
-    document.getElementById("resultBox").style.display="block";
+    document.getElementById("resultBox").style.display = "block";
 }
 
-loadItems();
-
-</script>
-
-</body>
-</html>
 async function setLang(lang){
 
     const res = await fetch(`lang/${lang}.json`);
@@ -256,14 +285,20 @@ async function setLang(lang){
     document.getElementById("altLabel").textContent = t.altCategory;
     document.getElementById("calcBtn").textContent = t.calc;
 
-    // RTL / LTR
     document.body.dir = (lang === "ar") ? "rtl" : "ltr";
 
     localStorage.setItem("lang", lang);
 }
 
-// تشغيل تلقائي
 window.onload = () => {
+
+    loadItems();
+
     const lang = localStorage.getItem("lang") || "ar";
     setLang(lang);
 };
+
+</script>
+
+</body>
+</html>
